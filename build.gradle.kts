@@ -19,21 +19,24 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot & Kotlin
 	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-jdbc")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.flywaydb:flyway-core")
+
+	// Database & Migration
+	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	runtimeOnly("org.postgresql:postgresql")
+
+	// Development tools
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+	// Testing frameworks
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	// Para build.gradle.kts
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
 	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 	testImplementation("io.mockk:mockk:1.10.6")
-
-
-
 }
 
 tasks.withType<KotlinCompile> {
