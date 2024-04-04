@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import tech.jaya.wec.model.Address
+import tech.jaya.wec.testutils.TestEntityGenerator
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @ActiveProfiles("test")

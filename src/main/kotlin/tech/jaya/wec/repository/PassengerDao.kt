@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import tech.jaya.wec.model.Passenger
+import tech.jaya.wec.repository.exception.EntityNotFoundException
 import java.sql.ResultSet
 import java.util.ResourceBundle
 
@@ -47,7 +48,6 @@ class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
         }
     }
 
-
     /**
      * Finds all Passenger entities.
      *
@@ -57,7 +57,6 @@ class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
         val sql = queries.getString("passenger.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
-
 
     /**
      * Saves a Passenger entity to the database. If the entity already exists, it is updated.
@@ -81,6 +80,9 @@ class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
     }
 
     private fun update(entity: Passenger): Passenger {
+        entity.id?.let { findById(it) }
+            ?: throw EntityNotFoundException("Passenger with id ${entity.id} not found")
+
         val sql = queries.getString("passenger.save.update")
         jdbcTemplate.update(sql, entity.name, entity.id)
         return entity

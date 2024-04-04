@@ -13,6 +13,7 @@ import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
+import tech.jaya.wec.repository.exception.EntityNotFoundException
 import java.sql.ResultSet
 import java.util.Properties
 
@@ -111,9 +112,9 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
     }
 
     private fun insert(ride: Ride): Ride {
-        val pickupId = ride.pickup.id ?: throw IllegalArgumentException("Pickup ID is missing")
-        val dropOffId = ride.dropOff.id ?: throw IllegalArgumentException("DropOff ID is missing")
-        val passengerId = ride.passenger.id ?: throw IllegalArgumentException("Passenger ID is missing")
+        val pickupId = ride.pickup.id ?: throw IllegalArgumentException("Pickup Id is missing")
+        val dropOffId = ride.dropOff.id ?: throw IllegalArgumentException("DropOff Id is missing")
+        val passengerId = ride.passenger.id ?: throw IllegalArgumentException("Passenger Id is missing")
 
         val parameters = HashMap<String, Any>(5)
         parameters["pickup_id"] = pickupId
@@ -128,6 +129,9 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
     }
 
     private fun update(ride: Ride): Ride {
+        ride.id?.let { findById(it) }
+            ?: throw EntityNotFoundException("Ride with id ${ride.id} not found")
+
         val sql = queries.getProperty("ride.save.update")
         jdbcTemplate.update(
             sql,

@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.testutils
 
 import tech.jaya.wec.model.Address
 import tech.jaya.wec.model.Car

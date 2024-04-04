@@ -3,6 +3,7 @@ package tech.jaya.wec.repository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -15,6 +16,7 @@ import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
+import tech.jaya.wec.testutils.TestEntityGenerator
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @ActiveProfiles("test")
@@ -98,6 +100,30 @@ class RideDaoTest {
         val totalItems = rideDao.findAll().size
         newPersistedRide()
         assertEquals(rideDao.findAll().size, totalItems + 1)
+    }
+
+    @Test
+    fun `not save should throw IllegalArgumentException when pick up id is null`() {
+        val ride = generator.generateRide().copy(pickup = Address(id = null, text = "Some address"))
+        assertThrows<IllegalArgumentException> {
+            rideDao.save(ride)
+        }
+    }
+
+    @Test
+    fun `not save should throw IllegalArgumentException when drop off id is null`() {
+        val ride = generator.generateRide().copy(dropOff = Address(id = null, text = "Some address"))
+        assertThrows<IllegalArgumentException> {
+            rideDao.save(ride)
+        }
+    }
+
+    @Test
+    fun `not save should throw IllegalArgumentException when passenger id is null`() {
+        val ride = generator.generateRide().copy(passenger = Passenger(id = null, name = "Some name"))
+        assertThrows<IllegalArgumentException> {
+            rideDao.save(ride)
+        }
     }
 
     @Test

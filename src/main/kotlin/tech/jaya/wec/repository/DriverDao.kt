@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
+import tech.jaya.wec.repository.exception.EntityNotFoundException
 import java.util.ResourceBundle
 
 /**

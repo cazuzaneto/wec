@@ -11,6 +11,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
+import tech.jaya.wec.testutils.TestEntityGenerator
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @ActiveProfiles("test")
