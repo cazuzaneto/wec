@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
 }
@@ -34,8 +35,8 @@ dependencies {
 
     // Database & Migration
     implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")
-    runtimeOnly("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Development tools
@@ -46,13 +47,13 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core:$flywayVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
         because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
     }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {

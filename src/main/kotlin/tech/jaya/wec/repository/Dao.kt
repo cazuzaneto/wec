@@ -1,10 +1,10 @@
+package tech.jaya.wec.repository
+
 /**
  * This interface defines the basic CRUD operations that all DAOs in the system must implement.
  *
  * @param T the type of the entity that the DAO manages.
  */
-package tech.jaya.wec.repository
-
 interface Dao<T> {
     /**
      * Finds an entity by its ID.

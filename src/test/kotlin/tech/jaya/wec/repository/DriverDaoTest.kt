@@ -46,7 +46,6 @@ class DriverDaoTest {
         val driver = newPersistedDriver()
         val result = driverDao.findById(driver.id!!)
         assertEquals(driver, result)
-
     }
 
     @Test

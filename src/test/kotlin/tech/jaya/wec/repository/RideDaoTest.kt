@@ -9,6 +9,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import tech.jaya.wec.model.Address
+import tech.jaya.wec.model.Car
+import tech.jaya.wec.model.Driver
+import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
 
@@ -19,11 +23,25 @@ import tech.jaya.wec.model.Status
 class RideDaoTest {
 
     @Autowired
+    @Qualifier("carDao")
+    private lateinit var carDao: Dao<Car>
+
+    @Autowired
     @Qualifier("rideDao")
     private lateinit var rideDao: Dao<Ride>
 
     @Autowired
-    private lateinit var addressDao: AddressDao
+    @Qualifier("addressDao")
+    private lateinit var addressDao: Dao<Address>
+
+    @Autowired
+    @Qualifier("driverDao")
+    private lateinit var driverDao: Dao<Driver>
+
+    @Autowired
+    @Qualifier("passengerDao")
+    private lateinit var passengerDao: Dao<Passenger>
+
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test
@@ -42,10 +60,9 @@ class RideDaoTest {
 
     @Test
     fun `findById should return a rides when found`() {
-        val driver = newPersistedRide()
-        val result = rideDao.findById(driver.id!!)
-        assertEquals(driver, result)
-
+        val ride = newPersistedRide()
+        val result = rideDao.findById(ride.id!!)
+        assertEquals(ride, result)
     }
 
     @Test
@@ -56,11 +73,24 @@ class RideDaoTest {
     }
 
     @Test
-    fun `save should update driver when id is not null`() {
-        val savedDriver = newPersistedRide()
-        val updatedResult = rideDao.save(savedDriver.copy(status = Status.CANCELLED))
-        val expectedDriver = rideDao.findById(savedDriver.id!!)
-        assertEquals(expectedDriver, updatedResult)
+    fun `save should update ride when id is not null and change passenger`() {
+        val savedRide = newPersistedRide()
+        val newPassenger = passengerDao.save(generator.generatePassenger())
+        val updatedResult =
+            rideDao.save(savedRide.copy(status = Status.CANCELLED, passenger = newPassenger))
+        val expectedRide = rideDao.findById(savedRide.id!!)
+        assertEquals(expectedRide, updatedResult)
+    }
+
+    @Test
+    fun `save should update ride when id is not null and change driver`() {
+        val savedRide = newPersistedRide()
+        val car = carDao.save(generator.generateCar())
+        val driver = driverDao.save(generator.generateDriver().copy(car = car))
+        val updatedRide =
+            rideDao.save(savedRide.copy(status = Status.CANCELLED, driver = driver))
+        val expectedRide = rideDao.findById(savedRide.id!!)
+        assertEquals(expectedRide, updatedRide)
     }
 
     @Test
@@ -72,16 +102,19 @@ class RideDaoTest {
 
     @Test
     fun `deleteById should delete ride`() {
-        val savedDriver = newPersistedRide()
+        val savedRide = newPersistedRide()
         val totalItems = rideDao.findAll().size
-        rideDao.deleteById(savedDriver.id!!)
+        rideDao.deleteById(savedRide.id!!)
         assertEquals(rideDao.findAll().size, totalItems - 1)
     }
 
     private fun newPersistedRide(): Ride {
         val addressPickUp = addressDao.save(generator.generateAddress())
         val addressDropOff = addressDao.save(generator.generateAddress())
-        val savedRide = rideDao.save(generator.generateRide().copy(pickup = addressPickUp, dropOff = addressDropOff))
+        val passenger = passengerDao.save(generator.generatePassenger())
+        val ride =
+            generator.generateRide().copy(passenger = passenger, pickup = addressPickUp, dropOff = addressDropOff)
+        val savedRide = rideDao.save(ride.copy(driver = null))
         return savedRide
     }
 }

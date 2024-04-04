@@ -57,13 +57,13 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
     /**
      * Saves an address to the database. If the address already exists, it is updated.
      *
-     * @param address the address to save.
+     * @param entity the address to save.
      * @return the saved address.
      */
-    override fun save(address: Address): Address {
-        return address.id?.let {
-            update(address)
-        } ?: insert(address)
+    override fun save(entity: Address): Address {
+        return entity.id?.let {
+            update(entity)
+        } ?: insert(entity)
     }
 
     /**

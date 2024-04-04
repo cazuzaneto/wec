@@ -1,4 +1,4 @@
 CREATE TABLE passengers (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );

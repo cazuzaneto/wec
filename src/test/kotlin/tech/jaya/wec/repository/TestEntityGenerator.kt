@@ -8,7 +8,6 @@ import tech.jaya.wec.model.Ride
 import uk.co.jemos.podam.api.PodamFactory
 import uk.co.jemos.podam.api.PodamFactoryImpl
 
-
 class TestEntityGenerator {
 
     private var factory: PodamFactory = PodamFactoryImpl()
@@ -33,4 +32,3 @@ class TestEntityGenerator {
         return factory.manufacturePojo(Passenger::class.java).copy(id = null)
     }
 }
-

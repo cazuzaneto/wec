@@ -1,11 +1,3 @@
-/**
- * This class is responsible for performing CRUD operations on Passenger entities in the database.
- *
- * @property jdbcTemplate The JdbcTemplate to be used for executing SQL queries.
- * @property queries The ResourceBundle containing the SQL queries.
- * @property simpleJdbcInsert The SimpleJdbcInsert to be used for inserting new Passenger entities.
- * @property rowMapper The RowMapper for mapping SQL result sets to Passenger entities.
- */
 package tech.jaya.wec.repository
 
 import org.springframework.dao.EmptyResultDataAccessException
@@ -17,6 +9,14 @@ import tech.jaya.wec.model.Passenger
 import java.sql.ResultSet
 import java.util.ResourceBundle
 
+/**
+ * This class is responsible for performing CRUD operations on Passenger entities in the database.
+ *
+ * @property jdbcTemplate The JdbcTemplate to be used for executing SQL queries.
+ * @property queries The ResourceBundle containing the SQL queries.
+ * @property simpleJdbcInsert The SimpleJdbcInsert to be used for inserting new Passenger entities.
+ * @property rowMapper The RowMapper for mapping SQL result sets to Passenger entities.
+ */
 @Repository
 class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
 
@@ -85,7 +85,7 @@ class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
         jdbcTemplate.update(sql, entity.name, entity.id)
         return entity
     }
-    
+
     /**
      * Deletes a Passenger entity by its ID.
      *

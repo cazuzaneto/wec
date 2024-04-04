@@ -1,3 +1,5 @@
+package tech.jaya.wec.model
+
 /**
  * A data class representing a Ride in the system.
  *
@@ -6,11 +8,11 @@
  * @property dropOff The drop-off address for the ride. It's a non-nullable Address object.
  * @property status The status of the ride. It's a non-nullable Status object.
  */
-package tech.jaya.wec.model
-
 data class Ride(
     val id: Long? = null,
     val pickup: Address,
     val dropOff: Address,
-    var status: Status
+    var status: Status,
+    var driver: Driver? = null,
+    var passenger: Passenger
 )
