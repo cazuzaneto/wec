@@ -1,101 +1,72 @@
 package tech.jaya.wec.repository
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.PreparedStatementCreator
-import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.support.GeneratedKeyHolder
-import tech.jaya.wec.model.Car
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.ActiveProfiles
 
-@ExtendWith(MockitoExtension::class)
+@SpringBootTest(properties = ["spring.profiles.active=test"])
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CarDaoTest {
 
-    @Mock
-    private lateinit var jdbcTemplate: JdbcTemplate
-
-    @InjectMocks
+    @Autowired
     private lateinit var carDao: CarDao
-
-    private lateinit var testCar: Car
-
-    @BeforeEach
-    fun setUp() {
-        testCar = Car(id = 1L, licensePlate = "ABC123", model = "TestModel", color = "Blue")
-    }
+    private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test
-    fun `Should return list of cars when findAll is called`() {
-        `when`(jdbcTemplate.query(any(String::class.java), any(RowMapper::class.java))).thenReturn(listOf(testCar))
-
+    fun `findAll should return a list of cars`() {
+        val totalCars = 10
+        (1..totalCars).forEach { _ -> carDao.save(generator.generateCar()) }
         val result = carDao.findAll()
-
-        assert(result.size == 1)
-        assert(result[0].licensePlate == testCar.licensePlate)
+        assertEquals(totalCars, result.size)
     }
 
     @Test
-    fun `Should return car when findById is called with valid id`() {
-        `when`(jdbcTemplate.queryForObject(any(String::class.java), any(RowMapper::class.java), anyLong())).thenReturn(
-            testCar
-        )
-
-        val result = carDao.findById(1L)
-
-        assert(result != null)
-        assert(result?.licensePlate == testCar.licensePlate)
+    fun `findAll should return an empty list when there are no cars`() {
+        val result = carDao.findAll()
+        assertTrue(result.isEmpty())
     }
 
     @Test
-    fun `Should return null when findById is called with invalid id`() {
-        `when`(jdbcTemplate.queryForObject(any(String::class.java), any(RowMapper::class.java), anyLong())).thenThrow(
-            EmptyResultDataAccessException::class.java
-        )
-
-        val result = carDao.findById(-1L)
-
-        assert(result == null)
+    fun `findById should return a car when found`() {
+        val savedCar = carDao.save(generator.generateCar())
+        val foundedCar = carDao.findById(savedCar.id!!)
+        assertEquals(savedCar, foundedCar)
     }
 
     @Test
-    fun `Should call update when save is called with existing car`() {
-        carDao.save(testCar)
-
-        verify(jdbcTemplate).update(any(String::class.java), any(), any(), any(), anyLong())
+    fun `findById should return null when not found`() {
+        val expectedId = 2L
+        val result = carDao.findById(expectedId)
+        assertEquals(null, result)
     }
 
     @Test
-    fun `Should call update with prepared statement when save is called with new car`() {
-        val newCar = Car(licensePlate = "ABC123", model = "TestModel", color = "Blue")
-
-        `when`(jdbcTemplate.update(any<PreparedStatementCreator>(), any<GeneratedKeyHolder>())).thenAnswer {
-            val keyHolder = it.getArgument(1, GeneratedKeyHolder::class.java)
-            keyHolder.keyList.add(mapOf("GENERATED_KEY" to 1L))
-            1
-        }
-
-        val savedCar = carDao.save(newCar)
-
-        assertNotNull(savedCar.id)
-        assertEquals(1L, savedCar.id)
+    fun `save should update car when id is not null`() {
+        val savedCar = carDao.save(generator.generateCar())
+        val updatedResult = carDao.save(savedCar.copy(model = "New Model"))
+        val expectedCar = carDao.findById(savedCar.id!!)
+        assertEquals(expectedCar, updatedResult)
     }
 
+    @Test
+    fun `save should insert new car when id is null`() {
+        val totalItems = carDao.findAll().size
+        carDao.save(generator.generateCar())
+        assertEquals(carDao.findAll().size, totalItems + 1)
+    }
 
     @Test
-    fun `Should call update when deleteById is called`() {
-        carDao.deleteById(1L)
-
-        verify(jdbcTemplate).update(any(String::class.java), anyLong())
+    fun `deleteById should delete car`() {
+        val savedCar = carDao.save(generator.generateCar())
+        val totalItems = carDao.findAll().size
+        carDao.deleteById(savedCar.id!!)
+        assertEquals(carDao.findAll().size, totalItems - 1)
     }
 }

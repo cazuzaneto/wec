@@ -1,5 +1,5 @@
 CREATE TABLE addresses
 (
-    id   SERIAL PRIMARY KEY,
+    id   BIGSERIAL PRIMARY KEY,
     text VARCHAR(255) NOT NULL
 );
