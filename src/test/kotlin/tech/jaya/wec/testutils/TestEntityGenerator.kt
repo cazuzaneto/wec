@@ -31,4 +31,8 @@ class TestEntityGenerator {
     fun generatePassenger(): Passenger {
         return factory.manufacturePojo(Passenger::class.java).copy(id = null)
     }
+
+    fun generateCars(quantity: Int): List<Car> {
+        return List(quantity) { generateCar() }
+    }
 }

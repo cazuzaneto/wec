@@ -26,6 +26,7 @@ val flywayVersion = "10.10.0"
 val junitVersion = "5.10.2"
 val mockkVersion = "1.13.10"
 val podam = "8.0.1.RELEASE"
+val ninja = "4.0.2"
 
 dependencies {
     // Spring Boot & Kotlin
@@ -49,6 +50,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2")
+    testImplementation("com.ninja-squad:springmockk:$ninja")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
         because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
     }
