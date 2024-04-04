@@ -124,7 +124,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      * @param id the ID of the driver to delete.
      */
     override fun deleteById(id: Long) {
-        findById(id)
+        findById(id) ?: throw EntityNotFoundException("Driver with id $id not found")
         val sql = queries.getString("DriverDao.deleteById")
         jdbcTemplate.update(sql, id)
     }

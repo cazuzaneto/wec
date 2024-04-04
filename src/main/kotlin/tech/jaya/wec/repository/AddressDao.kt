@@ -104,7 +104,7 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
      * @return true if the address was deleted, false otherwise.
      */
     override fun deleteById(id: Long) {
-        findById(id)
+        findById(id) ?: throw EntityNotFoundException("Address with id $id not found")
         val sql = queries.getString("AddressDao.deleteById")
         jdbcTemplate.update(sql, id)
     }

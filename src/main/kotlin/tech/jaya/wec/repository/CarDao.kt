@@ -108,7 +108,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      * @param id the ID of the car to delete.
      */
     override fun deleteById(id: Long) {
-        findById(id)
+        findById(id) ?: throw EntityNotFoundException("Car with id $id not found")
         val sql = queries.getString("CarDao.deleteById")
         jdbcTemplate.update(sql, id)
     }

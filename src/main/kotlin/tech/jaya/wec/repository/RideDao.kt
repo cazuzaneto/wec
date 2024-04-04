@@ -151,7 +151,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
      * @param id the ID of the Ride entity to delete.
      */
     override fun deleteById(id: Long) {
-        findById(id)
+        findById(id) ?: throw EntityNotFoundException("Ride with id $id not found")
         val sql = queries.getProperty("ride.delete")
         jdbcTemplate.update(sql, id)
     }

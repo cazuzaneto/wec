@@ -94,7 +94,7 @@ class PassengerDao(private val jdbcTemplate: JdbcTemplate) : Dao<Passenger> {
      * @param id the ID of the Passenger entity to delete.
      */
     override fun deleteById(id: Long) {
-        findById(id)
+        findById(id) ?: throw EntityNotFoundException("Passenger with id $id not found")
         val sql = queries.getString("passenger.delete")
         jdbcTemplate.update(sql, id) > 0
     }
