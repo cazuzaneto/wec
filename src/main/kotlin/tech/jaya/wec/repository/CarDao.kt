@@ -14,7 +14,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class CarDao(private val jdbcTemplate: JdbcTemplate) {
+class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -36,7 +36,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @return a list of all cars.
      */
-    fun findAll(): List<Car> {
+    override fun findAll(): List<Car> {
         val sql = queries.getString("CarDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
@@ -47,7 +47,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) {
      * @param id the ID of the car to retrieve.
      * @return the car if found, null otherwise.
      */
-    fun findById(id: Long): Car? {
+    override fun findById(id: Long): Car? {
         return try {
             val sql = queries.getString("CarDao.findById")
             jdbcTemplate.queryForObject(sql, rowMapper, id)
@@ -59,11 +59,11 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) {
     /**
      * Saves a car to the database. If the car already exists, it is updated.
      *
-     * @param car the car to save.
+     * @param entity the car to save.
      * @return the saved car.
      */
-    fun save(car: Car): Car {
-        return car.id?.let { update(car) } ?: insert(car)
+    override fun save(entity: Car): Car {
+        return entity.id?.let { update(entity) } ?: insert(entity)
     }
 
     /**
@@ -106,7 +106,8 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @param id the ID of the car to delete.
      */
-    fun deleteById(id: Long) {
+    override fun deleteById(id: Long) {
+        findById(id)
         val sql = queries.getString("CarDao.deleteById")
         jdbcTemplate.update(sql, id)
     }

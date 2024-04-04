@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
@@ -17,10 +19,12 @@ import tech.jaya.wec.model.Driver
 class DriverDaoTest {
 
     @Autowired
-    private lateinit var driverDao: DriverDao
+    @Qualifier("driverDao")
+    private lateinit var driverDao: Dao<Driver>
 
     @Autowired
-    private lateinit var carDao: CarDao
+    @Qualifier("carDao")
+    private lateinit var carDao: Dao<Car>
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test

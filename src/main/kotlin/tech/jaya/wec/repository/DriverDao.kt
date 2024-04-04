@@ -15,7 +15,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class DriverDao(private val jdbcTemplate: JdbcTemplate) {
+class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -47,7 +47,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @return a list of all drivers.
      */
-    fun findAll(): List<Driver> {
+    override fun findAll(): List<Driver> {
         val sql = queries.getString("DriverDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
@@ -58,10 +58,10 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      * @param id the ID of the driver to retrieve.
      * @return the driver if found, null otherwise.
      */
-    fun findById(id: Long): Driver? {
+    override fun findById(id: Long): Driver? {
         return try {
             val sql = queries.getString("DriverDao.findById")
-            return jdbcTemplate.queryForObject(sql, rowMapper, id)
+            jdbcTemplate.queryForObject(sql, rowMapper, id)
         } catch (ex: EmptyResultDataAccessException) {
             null
         }
@@ -70,13 +70,13 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
     /**
      * Saves a driver to the database. If the driver already exists, it is updated.
      *
-     * @param driver the driver to save.
+     * @param entity the driver to save.
      * @return the saved driver.
      */
-    fun save(driver: Driver): Driver = driver.id?.let {
-        update(driver)
+    override fun save(entity: Driver): Driver = entity.id?.let {
+        update(entity)
     } ?: run {
-        insert(driver)
+        insert(entity)
     }
 
     /**
@@ -122,7 +122,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @param id the ID of the driver to delete.
      */
-    fun deleteById(id: Long) {
+    override fun deleteById(id: Long) {
         findById(id)
         val sql = queries.getString("DriverDao.deleteById")
         jdbcTemplate.update(sql, id)

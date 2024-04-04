@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
+import tech.jaya.wec.model.Car
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
 @ActiveProfiles("test")
@@ -16,7 +18,8 @@ import org.springframework.test.context.ActiveProfiles
 class CarDaoTest {
 
     @Autowired
-    private lateinit var carDao: CarDao
+    @Qualifier("carDao")
+    private lateinit var carDao: Dao<Car>
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test

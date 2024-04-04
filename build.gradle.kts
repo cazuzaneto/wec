@@ -36,6 +36,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Development tools
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springBootVersion")
