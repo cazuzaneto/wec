@@ -2,19 +2,27 @@ package tech.jaya.wec.service
 
 import io.mockk.Runs
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
 import io.mockk.just
-import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import tech.jaya.wec.repository.CarDao
 import tech.jaya.wec.testutils.TestEntityGenerator
 
+@ExtendWith(SpringExtension::class)
 class CarServiceTest {
 
-    private val carDao = mockk<CarDao>()
-    private val carService = CarService(carDao)
+    @InjectMockKs
+    private lateinit var carService: CarService
+
+    @MockK
+    private lateinit var carDao: CarDao
+
     private var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test

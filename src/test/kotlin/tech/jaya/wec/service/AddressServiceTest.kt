@@ -1,17 +1,25 @@
 package tech.jaya.wec.service
 
 import io.mockk.every
-import io.mockk.mockk
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import tech.jaya.wec.repository.AddressDao
 import tech.jaya.wec.testutils.TestEntityGenerator
 
+@ExtendWith(SpringExtension::class)
 class AddressServiceTest {
 
-    private val addressDao = mockk<AddressDao>()
-    private val addressService = AddressService(addressDao)
+    @InjectMockKs
+    private lateinit var addressService: AddressService
+
+    @MockK
+    private lateinit var addressDao: AddressDao
+
     private var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test
@@ -28,7 +36,7 @@ class AddressServiceTest {
     @Test
     fun `should return address by id`() {
         val address = generator.generateAddressWithId()
-        val addressId = address.id!!
+        val addressId = requireNotNull(address.id) { "Address id is null" }
         every { addressDao.findById(addressId) } returns address
 
         val result = addressService.findById(addressId)

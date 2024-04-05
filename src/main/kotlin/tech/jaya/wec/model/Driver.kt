@@ -12,5 +12,5 @@ data class Driver(
     val id: Long? = null,
     val name: String,
     var available: Boolean,
-    val car: Car? = null
+    var car: Car? = null
 )

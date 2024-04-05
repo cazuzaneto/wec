@@ -47,4 +47,8 @@ class TestEntityGenerator {
     fun generateCars(quantity: Int): List<Car> {
         return List(quantity) { generateCar() }
     }
+
+    fun generateDriverWithId(): Driver {
+        return factory.manufacturePojo(Driver::class.java)
+    }
 }
