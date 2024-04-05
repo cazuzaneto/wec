@@ -27,14 +27,12 @@ val junitVersion = "5.10.2"
 val mockkVersion = "1.13.10"
 val podam = "8.0.1.RELEASE"
 val ninja = "4.0.2"
-val noargs = "1.9.23"
 
 dependencies {
     // Spring Boot & Kotlin
     implementation("org.springframework.boot:spring-boot-starter:$springBootVersion")
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-maven-noarg:$noargs")
 
     // Database & Migration
     implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")

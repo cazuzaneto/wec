@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import tech.jaya.wec.dto.driver.DriverRequest
 import tech.jaya.wec.dto.driver.DriverResponse
+import tech.jaya.wec.dto.driver.toResponse
 import tech.jaya.wec.service.DriverService
 
 @RestController
@@ -18,7 +19,7 @@ class DriverController(private val driverService: DriverService) {
 
     @GetMapping
     fun findAll(): ResponseEntity<List<DriverResponse>> {
-        val drivers = driverService.findAll().map { DriverResponse(it) }
+        val drivers = driverService.findAll().map { it.toResponse() }
         return ResponseEntity.ok(drivers)
     }
 
@@ -31,7 +32,7 @@ class DriverController(private val driverService: DriverService) {
     @PostMapping
     fun save(@RequestBody driverRequest: DriverRequest): ResponseEntity<DriverResponse> {
         val driver = driverService.save(driverRequest.toEntity(), driverRequest.carId)
-        return ResponseEntity.ok(DriverResponse(driver))
+        return ResponseEntity.ok(driver.toResponse())
     }
 
     @DeleteMapping("/{id}")
