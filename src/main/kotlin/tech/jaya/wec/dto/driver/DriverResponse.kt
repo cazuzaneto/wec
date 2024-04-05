@@ -1,12 +1,13 @@
 package tech.jaya.wec.dto.driver
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import tech.jaya.wec.model.Driver
 
 data class DriverResponse(
-    val id: Long,
-    val name: String,
-    val available: Boolean,
-    val carId: Long?
+    @JsonProperty("id") val id: Long,
+    @JsonProperty("name") val name: String,
+    @JsonProperty("available") val available: Boolean,
+    @JsonProperty("carId") val carId: Long?
 ) {
     constructor(driver: Driver) : this(
         id = driver.id ?: throw IllegalArgumentException("Driver id cannot be null"),

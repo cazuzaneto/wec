@@ -1,11 +1,12 @@
 package tech.jaya.wec.dto.driver
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import tech.jaya.wec.model.Driver
 
 data class DriverRequest(
-    val name: String,
-    val available: Boolean,
-    val carId: Long?
+    @JsonProperty("name") val name: String,
+    @JsonProperty("available") val available: Boolean,
+    @JsonProperty("carId") val carId: Long?
 ) {
 
     constructor(driver: Driver) : this(

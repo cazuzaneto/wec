@@ -1,10 +1,9 @@
 package tech.jaya.wec.dto.passenger
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import tech.jaya.wec.model.Passenger
 
-data class PassengerRequest @JsonCreator constructor(
+data class PassengerRequest(
     @JsonProperty("name") val name: String,
 ) {
 

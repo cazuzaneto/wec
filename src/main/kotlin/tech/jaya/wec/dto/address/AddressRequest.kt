@@ -1,10 +1,9 @@
 package tech.jaya.wec.dto.address
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import tech.jaya.wec.model.Address
 
-data class AddressRequest @JsonCreator constructor(
+data class AddressRequest(
     @JsonProperty("text") val text: String,
 ) {
 
