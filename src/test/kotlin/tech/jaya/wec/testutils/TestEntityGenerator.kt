@@ -20,8 +20,16 @@ class TestEntityGenerator {
         return factory.manufacturePojo(Car::class.java).copy(id = null)
     }
 
+    fun generateCarWithId(): Car {
+        return factory.manufacturePojo(Car::class.java)
+    }
+
     fun generateAddress(): Address {
         return factory.manufacturePojo(Address::class.java).copy(id = null)
+    }
+
+    fun generateAddressWithId(): Address {
+        return factory.manufacturePojo(Address::class.java)
     }
 
     fun generateRide(): Ride {
@@ -30,6 +38,10 @@ class TestEntityGenerator {
 
     fun generatePassenger(): Passenger {
         return factory.manufacturePojo(Passenger::class.java).copy(id = null)
+    }
+
+    fun generatePassengerWithId(): Passenger {
+        return factory.manufacturePojo(Passenger::class.java)
     }
 
     fun generateCars(quantity: Int): List<Car> {

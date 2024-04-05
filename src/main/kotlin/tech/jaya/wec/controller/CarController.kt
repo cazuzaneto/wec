@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import tech.jaya.wec.dto.car.CarRequest
+import tech.jaya.wec.dto.car.CarResponse
+import tech.jaya.wec.dto.car.toResponse
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.service.CarService
 
@@ -16,20 +19,21 @@ import tech.jaya.wec.service.CarService
 class CarController(private val carService: CarService) {
 
     @GetMapping
-    fun findAll(): ResponseEntity<List<Car>> {
+    fun findAll(): ResponseEntity<List<CarResponse>> {
         val cars = carService.findAll()
-        return ResponseEntity.ok(cars)
+        return ResponseEntity.ok(cars.map(Car::toResponse))
     }
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Long): ResponseEntity<Car> {
-        val car = carService.findById(id)
+    fun findById(@PathVariable id: Long): ResponseEntity<CarResponse> {
+        val car = carService.findById(id)?.toResponse()
         return if (car != null) ResponseEntity.ok(car) else ResponseEntity.notFound().build()
     }
 
     @PostMapping
-    fun save(@RequestBody car: Car): ResponseEntity<Car> {
-        val savedCar = carService.save(car)
+    fun save(@RequestBody carRequest: CarRequest): ResponseEntity<CarResponse> {
+        val car = carRequest.toEntity()
+        val savedCar = carService.save(car).toResponse()
         return ResponseEntity.ok(savedCar)
     }
 

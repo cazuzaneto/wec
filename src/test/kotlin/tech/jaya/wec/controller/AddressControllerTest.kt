@@ -18,92 +18,90 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import tech.jaya.wec.dto.car.CarRequest
-import tech.jaya.wec.service.CarService
+import tech.jaya.wec.dto.address.AddressRequest
+import tech.jaya.wec.service.AddressService
 import tech.jaya.wec.testutils.TestEntityGenerator
 
 @ExtendWith(SpringExtension::class)
-@WebMvcTest(CarController::class)
-class CarControllerTest {
+@WebMvcTest(AddressController::class)
+class AddressControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
     @MockkBean
-    private lateinit var carService: CarService
+    private lateinit var addressService: AddressService
 
     private var generator: TestEntityGenerator = TestEntityGenerator()
+
     private val objectMapper: ObjectMapper = ObjectMapper()
 
     @Test
-    fun `should return all cars`() {
-        val sizeResponse = 3
-        val cars = List(sizeResponse) { generator.generateCarWithId() }
-        every { carService.findAll() } returns cars
+    fun `should return all addresses`() {
+        val sizeResponse = 10
+        val addresses = List(sizeResponse) { generator.generateAddressWithId() }
+        every { addressService.findAll() } returns addresses
 
         mockMvc.perform(
-            get("/cars")
+            get("/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$", hasSize<Any>(sizeResponse)))
-            .andExpect(jsonPath("$[0].id").value(cars[0].id))
-            .andExpect(jsonPath("$[0].licensePlate").value(cars[0].licensePlate))
-            .andExpect(jsonPath("$[0].model").value(cars[0].model))
-            .andExpect(jsonPath("$[0].color").value(cars[0].color))
+            .andExpect(jsonPath("$[0].id").value(addresses[0].id))
+            .andExpect(jsonPath("$[0].text").value(addresses[0].text))
     }
 
     @Test
-    fun `should return car by id`() {
-        val car = generator.generateCarWithId()
-        every { carService.findById(1L) } returns car
+    fun `should return address by id`() {
+        val address = generator.generateAddressWithId()
+        val id = 1L
+        every { addressService.findById(id) } returns address
 
         mockMvc.perform(
-            get("/cars/1")
+            get("/addresses/$id")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(car.id))
-            .andExpect(jsonPath("$.licensePlate").value(car.licensePlate))
-            .andExpect(jsonPath("$.model").value(car.model))
-            .andExpect(jsonPath("$.color").value(car.color))
+            .andExpect(jsonPath("$.id").value(address.id))
+            .andExpect(jsonPath("$.text").value(address.text))
     }
 
     @Test
-    fun `should return not found when car does not exist`() {
-        every { carService.findById(1L) } returns null
+    fun `should return not found when address does not exist`() {
+        val id = 1L
+        every { addressService.findById(id) } returns null
 
         mockMvc.perform(
-            get("/cars/1")
+            get("/addresses/$id")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isNotFound)
     }
 
     @Test
-    fun `should create a new car`() {
-        val car = generator.generateCarWithId()
-        val request = CarRequest(car)
-        every { carService.save(any()) } returns car
+    fun `should create a new address`() {
+        val address = generator.generateAddressWithId()
+        val request = AddressRequest(address)
+        every { addressService.save(any()) } returns address
 
         mockMvc.perform(
-            post("/cars")
+            post("/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(car.id))
-            .andExpect(jsonPath("$.licensePlate").value(car.licensePlate))
-            .andExpect(jsonPath("$.model").value(car.model))
-            .andExpect(jsonPath("$.color").value(car.color))
+            .andExpect(jsonPath("$.id").value(address.id))
+            .andExpect(jsonPath("$.text").value(address.text))
     }
 
     @Test
-    fun `should delete a car`() {
-        every { carService.deleteById(1L) } just runs
+    fun `should delete an address`() {
+        val id = 1L
+        every { addressService.deleteById(id) } just runs
 
         mockMvc.perform(
-            delete("/cars/1")
+            delete("/addresses/$id")
                 .contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isNoContent)
