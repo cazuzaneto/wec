@@ -1,13 +1,7 @@
 package tech.jaya.wec.controller
 
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import tech.jaya.wec.dto.driver.DriverRequest
 import tech.jaya.wec.dto.driver.DriverResponse
 import tech.jaya.wec.dto.driver.toResponse
@@ -31,7 +25,7 @@ class DriverController(private val driverService: DriverService) {
 
     @PostMapping
     fun save(@RequestBody driverRequest: DriverRequest): ResponseEntity<DriverResponse> {
-        val driver = driverService.save(driverRequest.toEntity(), driverRequest.carId)
+        val driver = driverService.save(driverRequest.toEntity())
         return ResponseEntity.ok(driver.toResponse())
     }
 

@@ -15,9 +15,7 @@ class DriverService(private val driverDao: DriverDao, private val carService: Ca
         return driverDao.findById(id)
     }
 
-    fun save(driver: Driver, carId: Long?): Driver {
-        val car = carId?.let { carService.findById(it) } ?: throw IllegalArgumentException("Car not found")
-        driver.car = car
+    fun save(driver: Driver): Driver {
         return driverDao.save(driver)
     }
 
