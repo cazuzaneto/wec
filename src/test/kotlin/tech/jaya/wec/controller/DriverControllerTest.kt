@@ -17,8 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import tech.jaya.wec.dto.driver.DriverRequest
-import tech.jaya.wec.service.CarService
 import tech.jaya.wec.service.DriverService
 import tech.jaya.wec.testutils.TestEntityGenerator
 
@@ -28,9 +26,6 @@ class DriverControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
-
-    @MockkBean
-    private lateinit var carService: CarService
 
     @MockkBean
     private lateinit var driverService: DriverService
@@ -50,7 +45,7 @@ class DriverControllerTest {
             .andExpect(jsonPath("$[0].id").value(drivers[0].id))
             .andExpect(jsonPath("$[0].name").value(drivers[0].name))
             .andExpect(jsonPath("$[0].available").value(drivers[0].available))
-            .andExpect(jsonPath("$[0].carId").value(drivers[0].car?.id))
+            .andExpect(jsonPath("$[0].car.id").value(drivers[0].car?.id))
 
         verify { driverService.findAll() }
     }
@@ -66,29 +61,35 @@ class DriverControllerTest {
             .andExpect(jsonPath("$.id").value(driver.id))
             .andExpect(jsonPath("$.name").value(driver.name))
             .andExpect(jsonPath("$.available").value(driver.available))
-            .andExpect(jsonPath("$.carId").value(driver.car?.id))
+            .andExpect(jsonPath("$.car.id").value(driver.car?.id))
 
         verify { driverService.findById(id) }
     }
 
     @Test
     fun `should save a new driver`() {
-        val driver = generator.generateDriverWithId()
-        val request = DriverRequest(driver)
-        every { driverService.save(request.toEntity(), request.carId) } returns driver
+        val driverID = 1L
+        val driverRequest = generator.generateDriverRequestWithId()
+        val car = generator.generateCarWithId()
+        every {
+            driverService.save(driverRequest.toEntity())
+        } returns driverRequest.toEntity().copy(
+            id = 1L,
+            car = car
+        )
 
         mockMvc.perform(
             post("/drivers")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(objectMapper.writeValueAsString(driverRequest))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(driver.id))
-            .andExpect(jsonPath("$.name").value(driver.name))
-            .andExpect(jsonPath("$.available").value(driver.available))
-            .andExpect(jsonPath("$.carId").value(driver.car?.id))
+            .andExpect(jsonPath("$.id").value(driverID))
+            .andExpect(jsonPath("$.name").value(driverRequest.name))
+            .andExpect(jsonPath("$.available").value(driverRequest.available))
+            .andExpect(jsonPath("$.car.licensePlate").value(car.licensePlate))
 
-        verify { driverService.save(request.toEntity(), request.carId) }
+        verify { driverService.save(driverRequest.toEntity()) }
     }
 
     @Test
