@@ -1,5 +1,6 @@
 package tech.jaya.wec.testutils
 
+import tech.jaya.wec.dto.driver.DriverRequest
 import tech.jaya.wec.model.Address
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
@@ -50,5 +51,9 @@ class TestEntityGenerator {
 
     fun generateDriverWithId(): Driver {
         return factory.manufacturePojo(Driver::class.java)
+    }
+
+    fun generateDriverRequestWithId(): DriverRequest {
+        return factory.manufacturePojo(DriverRequest::class.java)
     }
 }

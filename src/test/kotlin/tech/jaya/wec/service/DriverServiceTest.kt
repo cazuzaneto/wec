@@ -57,7 +57,7 @@ class DriverServiceTest {
         every { carService.findById(carId) } returns driver.car
         every { driverDao.save(driver) } returns driver
 
-        val result = driverService.save(driver, carId)
+        val result = driverService.save(driver)
 
         assertNotNull(result)
         assertEquals(driver, result)
