@@ -34,6 +34,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
+    // Open API
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
     // Database & Migration
     implementation("org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
