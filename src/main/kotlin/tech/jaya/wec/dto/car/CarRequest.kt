@@ -9,8 +9,6 @@ data class CarRequest(
     @JsonProperty("color") val color: String
 ) {
 
-    constructor(car: Car) : this(licensePlate = car.licensePlate, model = car.model, color = car.color)
-
     fun toEntity(): Car {
         return Car(
             licensePlate = this.licensePlate,
