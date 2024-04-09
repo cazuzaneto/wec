@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.dao
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

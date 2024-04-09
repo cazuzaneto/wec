@@ -2,7 +2,7 @@ package tech.jaya.wec.service
 
 import org.springframework.stereotype.Service
 import tech.jaya.wec.model.Car
-import tech.jaya.wec.repository.CarDao
+import tech.jaya.wec.dao.CarDao
 
 @Service
 class CarService(private val carDao: CarDao) {

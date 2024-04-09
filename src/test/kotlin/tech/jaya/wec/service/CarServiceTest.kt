@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import tech.jaya.wec.repository.CarDao
+import tech.jaya.wec.dao.CarDao
 import tech.jaya.wec.testutils.TestEntityGenerator
 
 @ExtendWith(SpringExtension::class)
