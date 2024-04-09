@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository.exception
+package tech.jaya.wec.dao.exception
 
 /**
  * This exception is thrown when an entity is not found in the database.

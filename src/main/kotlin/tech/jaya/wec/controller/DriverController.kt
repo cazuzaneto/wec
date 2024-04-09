@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import tech.jaya.wec.dto.driver.DriverRequest
-import tech.jaya.wec.dto.driver.DriverResponse
-import tech.jaya.wec.dto.driver.toResponse
+import tech.jaya.wec.model.Driver
 import tech.jaya.wec.service.DriverService
 
 @RestController
@@ -18,21 +16,24 @@ import tech.jaya.wec.service.DriverService
 class DriverController(private val driverService: DriverService) {
 
     @GetMapping
-    fun findAll(): ResponseEntity<List<DriverResponse>> {
-        val drivers = driverService.findAll().map { it.toResponse() }
-        return ResponseEntity.ok(drivers)
+    fun findAll(): ResponseEntity<List<Driver>> {
+        return driverService.findAll().let {
+            ResponseEntity.ok(it)
+        }
     }
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Long): ResponseEntity<DriverResponse> {
-        val driver = driverService.findById(id) ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(DriverResponse(driver))
+    fun findById(@PathVariable id: Long): ResponseEntity<Driver> {
+        return driverService.findById(id)?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
     }
 
     @PostMapping
-    fun save(@RequestBody driverRequest: DriverRequest): ResponseEntity<DriverResponse> {
-        val driver = driverService.save(driverRequest.toEntity())
-        return ResponseEntity.ok(driver.toResponse())
+    fun save(@RequestBody driverRequest: Driver): ResponseEntity<Driver> {
+        return driverService.save(driverRequest).let {
+            ResponseEntity.ok(it)
+        }
     }
 
     @DeleteMapping("/{id}")
