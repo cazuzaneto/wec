@@ -111,16 +111,14 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate, private val carDao: CarD
         val parameters = HashMap<String, Any>(3)
         parameters["name"] = driver.name
         parameters["available"] = driver.available
-        var newCar: Car? = null
 
         driver.car?.run {
-            newCar = carDao.save(driver.car!!)
-            parameters["car_id"] = newCar?.id!!
+            parameters["car_id"] = this.id!!
         }
 
         val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
 
-        return driver.copy(id = newId, car = newCar)
+        return driver.copy(id = newId)
     }
 
     /**

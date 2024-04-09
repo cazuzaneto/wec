@@ -1,11 +1,12 @@
 package tech.jaya.wec.service
 
 import org.springframework.stereotype.Service
+import tech.jaya.wec.dao.CarDao
 import tech.jaya.wec.dao.DriverDao
 import tech.jaya.wec.model.Driver
 
 @Service
-class DriverService(private val driverDao: DriverDao) {
+class DriverService(private val driverDao: DriverDao, private val carDao: CarDao) {
 
     fun findAll(): List<Driver> {
         return driverDao.findAll()
@@ -16,7 +17,8 @@ class DriverService(private val driverDao: DriverDao) {
     }
 
     fun save(driver: Driver): Driver {
-        return driverDao.save(driver)
+        val newCar = carDao.save(driver.car!!)
+        return driverDao.save(driver.copy(car = newCar))
     }
 
     fun deleteById(id: Long) {
