@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import tech.jaya.wec.dao.CarDao
 import tech.jaya.wec.dao.DriverDao
 import tech.jaya.wec.testutils.TestEntityGenerator
 
@@ -22,7 +23,7 @@ class DriverServiceTest {
     private lateinit var driverDao: DriverDao
 
     @MockK
-    private lateinit var carService: CarService
+    private lateinit var carDao: CarDao
 
     private var generator: TestEntityGenerator = TestEntityGenerator()
 
@@ -53,8 +54,7 @@ class DriverServiceTest {
     @Test
     fun `should save a driver`() {
         val driver = generator.generateDriverWithId()
-        val carId = requireNotNull(driver.car?.id) { "Car id is null" }
-        every { carService.findById(carId) } returns driver.car
+        every { carDao.save(driver.car!!) } returns driver.car!!
         every { driverDao.save(driver) } returns driver
 
         val result = driverService.save(driver)

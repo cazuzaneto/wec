@@ -16,7 +16,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class DriverDao(private val jdbcTemplate: JdbcTemplate, private val carDao: CarDao) : Dao<Driver> {
+class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
