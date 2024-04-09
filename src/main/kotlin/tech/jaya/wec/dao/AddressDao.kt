@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.dao
 
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import tech.jaya.wec.model.Address
-import tech.jaya.wec.repository.exception.EntityNotFoundException
+import tech.jaya.wec.dao.exception.EntityNotFoundException
 import java.util.ResourceBundle
 
 /**

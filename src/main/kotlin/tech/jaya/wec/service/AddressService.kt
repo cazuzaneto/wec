@@ -2,7 +2,7 @@ package tech.jaya.wec.service
 
 import org.springframework.stereotype.Service
 import tech.jaya.wec.model.Address
-import tech.jaya.wec.repository.AddressDao
+import tech.jaya.wec.dao.AddressDao
 
 @Service
 class AddressService(private val addressDao: AddressDao) {
