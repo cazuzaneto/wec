@@ -20,10 +20,6 @@ class TestEntityGenerator {
         return factory.manufacturePojo(Car::class.java).copy(id = null)
     }
 
-    fun generateCarWithId(): Car {
-        return factory.manufacturePojo(Car::class.java)
-    }
-
     fun generateAddress(): Address {
         return factory.manufacturePojo(Address::class.java).copy(id = null)
     }

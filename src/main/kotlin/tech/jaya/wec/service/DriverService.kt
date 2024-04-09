@@ -1,11 +1,11 @@
 package tech.jaya.wec.service
 
 import org.springframework.stereotype.Service
-import tech.jaya.wec.model.Driver
 import tech.jaya.wec.dao.DriverDao
+import tech.jaya.wec.model.Driver
 
 @Service
-class DriverService(private val driverDao: DriverDao, private val carService: CarService) {
+class DriverService(private val driverDao: DriverDao) {
 
     fun findAll(): List<Driver> {
         return driverDao.findAll()
