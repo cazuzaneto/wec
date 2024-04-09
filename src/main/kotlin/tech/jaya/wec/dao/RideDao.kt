@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.dao
 
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.support.PropertiesLoaderUtils
@@ -13,7 +13,7 @@ import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
-import tech.jaya.wec.repository.exception.EntityNotFoundException
+import tech.jaya.wec.dao.exception.EntityNotFoundException
 import java.sql.ResultSet
 import java.util.Properties
 

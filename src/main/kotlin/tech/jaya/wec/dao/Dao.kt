@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.dao
 
 /**
  * This interface defines the basic CRUD operations that all DAOs in the system must implement.

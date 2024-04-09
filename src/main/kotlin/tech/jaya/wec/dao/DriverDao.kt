@@ -1,4 +1,4 @@
-package tech.jaya.wec.repository
+package tech.jaya.wec.dao
 
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
-import tech.jaya.wec.repository.exception.EntityNotFoundException
+import tech.jaya.wec.dao.exception.EntityNotFoundException
 import java.util.ResourceBundle
 
 /**
@@ -16,7 +16,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
+class DriverDao(private val jdbcTemplate: JdbcTemplate, private val carDao: CarDao) : Dao<Driver> {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -111,7 +111,12 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
         val parameters = HashMap<String, Any>(3)
         parameters["name"] = driver.name
         parameters["available"] = driver.available
-        driver.car?.id?.let { parameters["car_id"] = it }
+
+        driver.car?.run {
+            parameters["car_id"] = carDao.save(driver.car!!).id!!
+            // TODO create custom exception for car error
+            // TODO get car object return from dao and use it to return a car with ID
+        }
 
         val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
 
