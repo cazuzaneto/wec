@@ -5,9 +5,9 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
+import tech.jaya.wec.dao.exception.EntityNotFoundException
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
-import tech.jaya.wec.dao.exception.EntityNotFoundException
 import java.util.ResourceBundle
 
 /**
@@ -111,16 +111,16 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate, private val carDao: CarD
         val parameters = HashMap<String, Any>(3)
         parameters["name"] = driver.name
         parameters["available"] = driver.available
+        var newCar: Car? = null
 
         driver.car?.run {
-            parameters["car_id"] = carDao.save(driver.car!!).id!!
-            // TODO create custom exception for car error
-            // TODO get car object return from dao and use it to return a car with ID
+            newCar = carDao.save(driver.car!!)
+            parameters["car_id"] = newCar?.id!!
         }
 
         val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
 
-        return driver.copy(id = newId)
+        return driver.copy(id = newId, car = newCar)
     }
 
     /**
