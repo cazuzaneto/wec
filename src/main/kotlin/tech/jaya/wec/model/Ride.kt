@@ -1,5 +1,8 @@
 package tech.jaya.wec.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * A data class representing a Ride in the system.
  *
@@ -9,7 +12,9 @@ package tech.jaya.wec.model
  * @property status The status of the ride. It's a non-nullable Status object.
  */
 data class Ride(
-    val id: Long? = null,
+    @set:JsonIgnore
+    @get:JsonProperty("id")
+    var id: Long? = null,
     val pickup: Address,
     val dropOff: Address,
     var status: Status,

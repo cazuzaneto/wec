@@ -1,5 +1,8 @@
 package tech.jaya.wec.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * This data class represents an Address entity.
  *
@@ -7,6 +10,8 @@ package tech.jaya.wec.model
  * @property text the text of the address.
  */
 data class Address(
-    val id: Long? = null,
+    @set:JsonIgnore
+    @get:JsonProperty("id")
+    var id: Long? = null,
     val text: String,
 )

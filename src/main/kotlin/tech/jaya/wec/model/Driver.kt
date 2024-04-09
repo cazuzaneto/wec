@@ -1,5 +1,8 @@
 package tech.jaya.wec.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * This data class represents a Driver entity.
  *
@@ -9,8 +12,10 @@ package tech.jaya.wec.model
  * @property car the car associated with the driver. It's nullable because a driver might not have a car associated.
  */
 data class Driver(
-    val id: Long? = null,
-    val name: String,
-    var available: Boolean,
-    var car: Car? = null
+    @set:JsonIgnore
+    @get:JsonProperty("id")
+    var id: Long? = null,
+    @JsonProperty("name") val name: String,
+    @JsonProperty("available") var available: Boolean,
+    @JsonProperty("car") var car: Car? = null
 )
