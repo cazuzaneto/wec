@@ -2,7 +2,7 @@ package tech.jaya.wec.service
 
 import org.springframework.stereotype.Service
 import tech.jaya.wec.model.Passenger
-import tech.jaya.wec.repository.PassengerDao
+import tech.jaya.wec.dao.PassengerDao
 
 @Service
 class PassengerService(private val passengerDao: PassengerDao) {

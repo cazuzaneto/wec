@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import tech.jaya.wec.dto.passenger.PassengerRequest
-import tech.jaya.wec.dto.passenger.PassengerResponse
-import tech.jaya.wec.dto.passenger.toResponse
+import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.service.PassengerService
 
 @RestController
@@ -18,23 +16,25 @@ import tech.jaya.wec.service.PassengerService
 class PassengerController(private val passengerService: PassengerService) {
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Long): ResponseEntity<PassengerResponse> {
-        return passengerService.findById(id)?.toResponse()?.let {
+    fun findById(@PathVariable id: Long): ResponseEntity<Passenger> {
+        return passengerService.findById(id)?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound()
             .build()
     }
 
     @GetMapping
-    fun findAll(): ResponseEntity<List<PassengerResponse>> {
-        val passengers = passengerService.findAll().map { it.toResponse() }
-        return ResponseEntity.ok(passengers)
+    fun findAll(): ResponseEntity<List<Passenger>> {
+        return passengerService.findAll().let {
+            ResponseEntity.ok(it)
+        }
     }
 
     @PostMapping
-    fun save(@RequestBody passengerRequest: PassengerRequest): ResponseEntity<PassengerResponse> {
-        val passenger = passengerService.save(passengerRequest.toEntity())
-        return ResponseEntity.ok(passenger.toResponse())
+    fun save(@RequestBody passengerRequest: Passenger): ResponseEntity<Passenger> {
+        return passengerService.save(passengerRequest).let {
+            ResponseEntity.ok(it)
+        }
     }
 
     @DeleteMapping("/{id}")
