@@ -7,14 +7,15 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
+import tech.jaya.wec.dao.exception.EntityNotFoundException
 import tech.jaya.wec.model.Address
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
-import tech.jaya.wec.dao.exception.EntityNotFoundException
 import java.sql.ResultSet
+import java.sql.Timestamp
 import java.util.Properties
 
 /**
@@ -38,6 +39,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
         val driverId = rs.getObject("driver_id") as Long?
         val driverName = rs.getObject("driver_name") as String?
         val driverAvailable = rs.getObject("driver_available") as Boolean?
+        val activationDate = rs.getObject("activation_date") as Timestamp?
         val carId = rs.getObject("car_id") as Long?
         val carLicensePlate = rs.getObject("car_license_plate") as String?
         val carModel = rs.getObject("car_model") as String?
@@ -57,6 +59,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
                 id = it,
                 name = driverName!!,
                 available = driverAvailable!!,
+                activationDate = activationDate!!,
                 car = car
             )
         }
@@ -69,7 +72,8 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
             driver = driver,
             passenger = Passenger(
                 id = rs.getLong("passenger_id"),
-                name = rs.getString("passenger_name")
+                name = rs.getString("passenger_name"),
+                email = rs.getString("passenger_email")
             )
         )
     }
@@ -113,14 +117,19 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
 
     private fun insert(ride: Ride): Ride {
         val pickupId = ride.pickup.id ?: throw IllegalArgumentException("Pickup Id is missing")
-        val dropOffId = ride.dropOff.id ?: throw IllegalArgumentException("DropOff Id is missing")
         val passengerId = ride.passenger.id ?: throw IllegalArgumentException("Passenger Id is missing")
-
         val parameters = HashMap<String, Any>(5)
-        parameters["pickup_id"] = pickupId
-        parameters["dropoff_id"] = dropOffId
-        parameters["status"] = ride.status.name
-        parameters["passenger_id"] = passengerId
+
+        ride.run {
+            parameters["pickup_id"] = pickupId
+            parameters["status"] = ride.status.name
+            parameters["passenger_id"] = passengerId
+        }
+
+        if (ride.dropOff != null) {
+            parameters["dropoff_id"] = ride.dropOff.id!!
+        }
+
         ride.driver?.id?.let { parameters["driver_id"] = it }
 
         val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
@@ -136,7 +145,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
         jdbcTemplate.update(
             sql,
             ride.pickup.id,
-            ride.dropOff.id,
+            ride.dropOff?.id,
             ride.status.name,
             ride.driver?.id,
             ride.passenger.id,

@@ -2,7 +2,7 @@ CREATE TABLE rides
 (
     id           BIGSERIAL PRIMARY KEY,
     pickup_id    BIGINT       NOT NULL,
-    dropoff_id   BIGINT       NOT NULL,
+    dropoff_id   BIGINT,
     status       VARCHAR(255) NOT NULL,
     driver_id    BIGINT,
     passenger_id BIGINT       NOT NULL,

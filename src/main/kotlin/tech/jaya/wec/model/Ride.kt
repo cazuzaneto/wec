@@ -16,7 +16,7 @@ data class Ride(
     @get:JsonProperty("id")
     var id: Long? = null,
     val pickup: Address,
-    val dropOff: Address,
+    val dropOff: Address? = null,
     var status: Status,
     var driver: Driver? = null,
     var passenger: Passenger
