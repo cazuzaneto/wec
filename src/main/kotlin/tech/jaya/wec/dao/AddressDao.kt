@@ -15,7 +15,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
+class AddressDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -35,7 +35,7 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
      *
      * @return a list of all addresses.
      */
-    override fun findAll(): List<Address> {
+    fun findAll(): List<Address> {
         val sql = queries.getString("AddressDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
@@ -46,7 +46,7 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
      * @param id the ID of the address to retrieve.
      * @return the address if found, null otherwise.
      */
-    override fun findById(id: Long): Address? {
+     fun findById(id: Long): Address? {
         return try {
             val sql = queries.getString("AddressDao.findById")
             jdbcTemplate.queryForObject(sql, rowMapper, id)
@@ -61,7 +61,7 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
      * @param entity the address to save.
      * @return the saved address.
      */
-    override fun save(entity: Address): Address {
+     fun save(entity: Address): Address {
         return entity.id?.let {
             update(entity)
         } ?: insert(entity)
@@ -102,7 +102,7 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
      * @param id the ID of the address to delete.
      * @return true if the address was deleted, false otherwise.
      */
-    override fun deleteById(id: Long) {
+     fun deleteById(id: Long) {
         findById(id) ?: throw EntityNotFoundException("Address with id $id not found")
         val sql = queries.getString("AddressDao.deleteById")
         jdbcTemplate.update(sql, id)

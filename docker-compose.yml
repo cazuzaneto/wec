@@ -5,9 +5,9 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_DB: ${DATASOURCE_DB_NAME}
-      POSTGRES_USER: ${DATASOURCE_USERNAME}
-      POSTGRES_PASSWORD: ${DATASOURCE_PASSWORD}
+      POSTGRES_DB: wec
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: sa
     ports:
       - "5432:5432"
     volumes:

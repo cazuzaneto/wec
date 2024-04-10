@@ -5,8 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
-import tech.jaya.wec.model.Car
 import tech.jaya.wec.dao.exception.EntityNotFoundException
+import tech.jaya.wec.model.Car
 import java.util.ResourceBundle
 
 /**
@@ -15,7 +15,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
+class CarDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -37,7 +37,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      *
      * @return a list of all cars.
      */
-    override fun findAll(): List<Car> {
+    fun findAll(): List<Car> {
         val sql = queries.getString("CarDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
@@ -48,7 +48,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      * @param id the ID of the car to retrieve.
      * @return the car if found, null otherwise.
      */
-    override fun findById(id: Long): Car? {
+    fun findById(id: Long): Car? {
         return try {
             val sql = queries.getString("CarDao.findById")
             jdbcTemplate.queryForObject(sql, rowMapper, id)
@@ -63,7 +63,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      * @param entity the car to save.
      * @return the saved car.
      */
-    override fun save(entity: Car): Car {
+    fun save(entity: Car): Car {
         return entity.id?.let { update(entity) } ?: insert(entity)
     }
 
@@ -74,7 +74,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      * @return the updated car.
      * @throws EntityNotFoundException if the car does not exist.
      */
-    private fun update(car: Car): Car {
+    fun update(car: Car): Car {
         val existingId = car.id!!
         findById(existingId) ?: throw EntityNotFoundException("Car with id $existingId not found")
         val sql = queries.getString("CarDao.save.update")
@@ -107,7 +107,7 @@ class CarDao(private val jdbcTemplate: JdbcTemplate) : Dao<Car> {
      *
      * @param id the ID of the car to delete.
      */
-    override fun deleteById(id: Long) {
+    fun deleteById(id: Long) {
         findById(id) ?: throw EntityNotFoundException("Car with id $id not found")
         val sql = queries.getString("CarDao.deleteById")
         jdbcTemplate.update(sql, id)

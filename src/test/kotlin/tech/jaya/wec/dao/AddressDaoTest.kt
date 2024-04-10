@@ -4,12 +4,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import tech.jaya.wec.model.Address
 import tech.jaya.wec.testutils.TestEntityGenerator
 
 @SpringBootTest(properties = ["spring.profiles.active=test"])
@@ -19,8 +17,7 @@ import tech.jaya.wec.testutils.TestEntityGenerator
 class AddressDaoTest {
 
     @Autowired
-    @Qualifier("addressDao")
-    private lateinit var addressDao: Dao<Address>
+    private lateinit var addressDao: AddressDao
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test
