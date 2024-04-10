@@ -14,5 +14,9 @@ data class Passenger(
     @set:JsonIgnore
     @get:JsonProperty("id")
     var id: Long? = null,
-    val name: String
+    val name: String,
+    val email: String
+
+    // TODO add email
+    // TODO add account
 )
