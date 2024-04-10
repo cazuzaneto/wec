@@ -2,6 +2,7 @@ package tech.jaya.wec.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.sql.Timestamp
 
 /**
  * This data class represents a Driver entity.
@@ -15,7 +16,9 @@ data class Driver(
     @set:JsonIgnore
     @get:JsonProperty("id")
     var id: Long? = null,
-    @JsonProperty("name") val name: String,
-    @JsonProperty("available") var available: Boolean,
-    @JsonProperty("car") var car: Car? = null
+    val name: String,
+    val available: Boolean,
+    @set:JsonIgnore
+    var activationDate : Timestamp?,
+    var car: Car? = null
 )

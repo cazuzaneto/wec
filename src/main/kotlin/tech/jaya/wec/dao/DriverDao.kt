@@ -4,11 +4,17 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.jdbc.support.GeneratedKeyHolder
+import org.springframework.jdbc.support.KeyHolder
 import org.springframework.stereotype.Repository
 import tech.jaya.wec.dao.exception.EntityNotFoundException
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.Statement
 import java.util.ResourceBundle
+
 
 /**
  * This class is responsible for performing CRUD operations on the Driver entity.
@@ -39,6 +45,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
             id = rs.getLong("id"),
             name = rs.getString("name") ?: "",
             available = rs.getBoolean("available"),
+            activationDate = rs.getTimestamp("activation_date"),
             car = car
         )
     }
@@ -51,6 +58,20 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
     override fun findAll(): List<Driver> {
         val sql = queries.getString("DriverDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
+    }
+
+    /**
+     * Retrieve first driver available from the database.
+     *
+     * @return a list of all drivers.
+     */
+    fun firstAvailable(): Driver? {
+        return try {
+            val sql = queries.getString("DriverDao.firstAvailable")
+            jdbcTemplate.queryForObject(sql, rowMapper)
+        }catch (ex: EmptyResultDataAccessException) {
+            null
+        }
     }
 
     /**
@@ -108,17 +129,20 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      * @return the inserted driver with its new ID.
      */
     private fun insert(driver: Driver): Driver {
-        val parameters = HashMap<String, Any>(3)
-        parameters["name"] = driver.name
-        parameters["available"] = driver.available
+        val sql = queries.getString("DriverDao.save")
+        val keyHolder: KeyHolder = GeneratedKeyHolder()
 
-        driver.car?.run {
-            parameters["car_id"] = this.id!!
+        jdbcTemplate.update({ connection: Connection ->
+            val ps: PreparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+            ps.setString(1, driver.name)
+            ps.setBoolean(2, driver.available)
+            ps.setLong(3, driver.car?.id!!)
+            ps
+        }, keyHolder)
+
+        return keyHolder.keyList[0].let {
+            driver.copy(id = it["id"] as Long?)
         }
-
-        val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
-
-        return driver.copy(id = newId)
     }
 
     /**
@@ -130,5 +154,10 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
         findById(id) ?: throw EntityNotFoundException("Driver with id $id not found")
         val sql = queries.getString("DriverDao.deleteById")
         jdbcTemplate.update(sql, id)
+    }
+
+    fun setDriverToUnavailable(driver: Driver?) {
+        val sql = queries.getString("DriverDao.setDriverToUnavailable")
+        jdbcTemplate.update(sql, driver!!.id!!)
     }
 }
