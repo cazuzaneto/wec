@@ -5,8 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
-import tech.jaya.wec.model.Address
 import tech.jaya.wec.dao.exception.EntityNotFoundException
+import tech.jaya.wec.model.Address
 import java.util.ResourceBundle
 
 /**
@@ -78,7 +78,6 @@ class AddressDao(private val jdbcTemplate: JdbcTemplate) : Dao<Address> {
         parameters["text"] = address.text
 
         val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
-
         return address.copy(id = newId)
     }
 
