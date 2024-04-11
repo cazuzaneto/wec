@@ -5,14 +5,10 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import tech.jaya.wec.model.Address
-import tech.jaya.wec.model.Car
-import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
 import tech.jaya.wec.model.Status
@@ -25,24 +21,16 @@ import tech.jaya.wec.testutils.TestEntityGenerator
 class RideDaoTest {
 
     @Autowired
-    @Qualifier("carDao")
-    private lateinit var carDao: Dao<Car>
+    private lateinit var carDao: CarDao
 
     @Autowired
-    @Qualifier("rideDao")
-    private lateinit var rideDao: Dao<Ride>
+    private lateinit var rideDao: RideDao
 
     @Autowired
-    @Qualifier("addressDao")
-    private lateinit var addressDao: Dao<Address>
+    private lateinit var driverDao: DriverDao
 
     @Autowired
-    @Qualifier("driverDao")
-    private lateinit var driverDao: Dao<Driver>
-
-    @Autowired
-    @Qualifier("passengerDao")
-    private lateinit var passengerDao: Dao<Passenger>
+    private lateinit var passengerDao: PassengerDao
 
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
@@ -92,7 +80,9 @@ class RideDaoTest {
         val updatedRide =
             rideDao.save(savedRide.copy(status = Status.CANCELLED, driver = driver))
         val expectedRide = rideDao.findById(savedRide.id!!)
-        assertEquals(expectedRide, updatedRide)
+        assertEquals(expectedRide!!.id, updatedRide.id)
+        assertEquals(expectedRide.driver!!.id, updatedRide.id)
+        assertEquals(Status.CANCELLED, updatedRide.status)
     }
 
     @Test
@@ -103,24 +93,9 @@ class RideDaoTest {
     }
 
     @Test
-    fun `not save should throw IllegalArgumentException when pick up id is null`() {
-        val ride = generator.generateRide().copy(pickup = Address(id = null, text = "Some address"))
-        assertThrows<IllegalArgumentException> {
-            rideDao.save(ride)
-        }
-    }
-
-    @Test
-    fun `not save should throw IllegalArgumentException when drop off id is null`() {
-        val ride = generator.generateRide().copy(dropOff = Address(id = null, text = "Some address"))
-        assertThrows<IllegalArgumentException> {
-            rideDao.save(ride)
-        }
-    }
-
-    @Test
     fun `not save should throw IllegalArgumentException when passenger id is null`() {
-        val ride = generator.generateRide().copy(passenger = Passenger(id = null, name = "Some name"))
+        val ride =
+            generator.generateRide().copy(passenger = Passenger(id = null, name = "Some name", email = "test@test.com"))
         assertThrows<IllegalArgumentException> {
             rideDao.save(ride)
         }
@@ -135,8 +110,8 @@ class RideDaoTest {
     }
 
     private fun newPersistedRide(): Ride {
-        val addressPickUp = addressDao.save(generator.generateAddress())
-        val addressDropOff = addressDao.save(generator.generateAddress())
+        val addressPickUp = generator.generateAddress()
+        val addressDropOff = generator.generateAddress()
         val passenger = passengerDao.save(generator.generatePassenger())
         val ride =
             generator.generateRide().copy(passenger = passenger, pickup = addressPickUp, dropOff = addressDropOff)

@@ -23,19 +23,23 @@ import java.util.Properties
  *
  * @property jdbcTemplate The JdbcTemplate to be used for executing SQL queries.
  * @property queries The Properties object containing the SQL queries.
- * @property simpleJdbcInsert The SimpleJdbcInsert to be used for inserting new Ride entities.
- * @property rowMapper The RowMapper for mapping SQL result sets to Ride entities.
+ * @property rideTable The SimpleJdbcInsert to be used for inserting new Ride entities.
+ * @property rideMapper The RowMapper for mapping SQL result sets to Ride entities.
  */
 @Repository
-class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
+class RideDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries: Properties = PropertiesLoaderUtils.loadProperties(ClassPathResource("sql-queries.properties"))
 
-    private val simpleJdbcInsert: SimpleJdbcInsert = SimpleJdbcInsert(jdbcTemplate)
+    private val rideTable: SimpleJdbcInsert = SimpleJdbcInsert(jdbcTemplate)
         .withTableName("rides")
         .usingGeneratedKeyColumns("id")
 
-    private val rowMapper = RowMapper<Ride> { rs: ResultSet, _: Int ->
+    private val addressTable = SimpleJdbcInsert(jdbcTemplate)
+        .withTableName("addresses")
+        .usingGeneratedKeyColumns("id")
+
+    private val rideMapper = RowMapper<Ride> { rs: ResultSet, _: Int ->
         val driverId = rs.getObject("driver_id") as Long?
         val driverName = rs.getObject("driver_name") as String?
         val driverAvailable = rs.getObject("driver_available") as Boolean?
@@ -59,7 +63,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
                 id = it,
                 name = driverName!!,
                 available = driverAvailable!!,
-                activationDate = activationDate!!,
+                activationDate = activationDate!!.toLocalDateTime(),
                 car = car
             )
         }
@@ -78,16 +82,79 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
         )
     }
 
+    private val addressMapper = RowMapper { rs, _ ->
+        Address(
+            id = rs.getLong("id"),
+            text = rs.getString("text")
+        )
+    }
+
+    /**
+     * Saves an address to the database. If the address already exists, it is updated.
+     *
+     * @param entity the address to save.
+     * @return the saved address.
+     */
+    fun saveAddress(entity: Address): Address {
+        return entity.id?.let {
+            updateAddress(entity)
+        } ?: insertAddress(entity)
+    }
+
+    /**
+     * Inserts a new address into the database.
+     *
+     * @param address the address to insert.
+     * @return the inserted address with its new ID.
+     */
+    private fun insertAddress(address: Address): Address {
+        val parameters = HashMap<String, Any>(1)
+        parameters["text"] = address.text
+
+        val newId = addressTable.executeAndReturnKey(parameters).toLong()
+        return address.copy(id = newId)
+    }
+
+    /**
+     * Retrieves an address by its ID.
+     *
+     * @param id the ID of the address to retrieve.
+     * @return the address if found, null otherwise.
+     */
+    fun findAddressById(id: Long): Address? {
+        return try {
+            val sql = queries.getProperty("AddressDao.findById")
+            jdbcTemplate.queryForObject(sql, addressMapper, id)
+        } catch (e: EmptyResultDataAccessException) {
+            null
+        }
+    }
+
+    /**
+     * Updates an existing address in the database.
+     *
+     * @param address the address to update.
+     * @return the updated address.
+     * @throws EntityNotFoundException if the address does not exist.
+     */
+    private fun updateAddress(address: Address): Address {
+        val existingId = address.id!!
+        findAddressById(existingId) ?: throw EntityNotFoundException("Address with id $existingId not found")
+        val sql = queries.getProperty("AddressDao.save.update")
+        jdbcTemplate.update(sql, address.text, address.id)
+        return address
+    }
+
     /**
      * Finds a Ride entity by its ID.
      *
      * @param id the ID of the Ride entity to find.
      * @return the Ride entity if found, null otherwise.
      */
-    override fun findById(id: Long): Ride? {
+    fun findById(id: Long): Ride? {
         return try {
             val sql = queries.getProperty("ride.findById")
-            jdbcTemplate.queryForObject(sql, rowMapper, id)
+            jdbcTemplate.queryForObject(sql, rideMapper, id)
         } catch (ex: EmptyResultDataAccessException) {
             null
         }
@@ -98,9 +165,9 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
      *
      * @return a list of all Ride entities.
      */
-    override fun findAll(): List<Ride> {
+    fun findAll(): List<Ride> {
         val sql = queries.getProperty("ride.findAll")
-        return jdbcTemplate.query(sql, rowMapper)
+        return jdbcTemplate.query(sql, rideMapper)
     }
 
     /**
@@ -109,32 +176,31 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
      * @param entity the Ride entity to save.
      * @return the saved Ride entity.
      */
-    override fun save(entity: Ride): Ride = entity.id?.let {
+    fun save(entity: Ride): Ride = entity.id?.let {
         update(entity)
     } ?: run {
         insert(entity)
     }
 
     private fun insert(ride: Ride): Ride {
-        val pickupId = ride.pickup.id ?: throw IllegalArgumentException("Pickup Id is missing")
         val passengerId = ride.passenger.id ?: throw IllegalArgumentException("Passenger Id is missing")
         val parameters = HashMap<String, Any>(5)
 
+        val pickupAddress = insertAddress(ride.pickup)
+        val dropOffAddress = insertAddress(ride.dropOff)
+
         ride.run {
-            parameters["pickup_id"] = pickupId
             parameters["status"] = ride.status.name
             parameters["passenger_id"] = passengerId
-        }
-
-        if (ride.dropOff != null) {
-            parameters["dropoff_id"] = ride.dropOff.id!!
+            parameters["pickup_id"] = pickupAddress.id!!
+            parameters["dropoff_id"] = dropOffAddress.id!!
         }
 
         ride.driver?.id?.let { parameters["driver_id"] = it }
 
-        val newId = simpleJdbcInsert.executeAndReturnKey(parameters).toLong()
+        val newId = rideTable.executeAndReturnKey(parameters).toLong()
 
-        return ride.copy(id = newId)
+        return ride.copy(id = newId, pickup = pickupAddress, dropOff = dropOffAddress)
     }
 
     private fun update(ride: Ride): Ride {
@@ -145,7 +211,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
         jdbcTemplate.update(
             sql,
             ride.pickup.id,
-            ride.dropOff?.id,
+            ride.dropOff.id,
             ride.status.name,
             ride.driver?.id,
             ride.passenger.id,
@@ -159,7 +225,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) : Dao<Ride> {
      *
      * @param id the ID of the Ride entity to delete.
      */
-    override fun deleteById(id: Long) {
+    fun deleteById(id: Long) {
         findById(id) ?: throw EntityNotFoundException("Ride with id $id not found")
         val sql = queries.getProperty("ride.delete")
         jdbcTemplate.update(sql, id)
