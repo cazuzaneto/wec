@@ -186,8 +186,8 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) {
         val passengerId = ride.passenger.id ?: throw IllegalArgumentException("Passenger Id is missing")
         val parameters = HashMap<String, Any>(5)
 
-        val pickupAddress = insertAddress(ride.pickup)
-        val dropOffAddress = insertAddress(ride.dropOff)
+        val pickupAddress = saveAddress(ride.pickup)
+        val dropOffAddress = saveAddress(ride.dropOff)
 
         ride.run {
             parameters["status"] = ride.status.name
