@@ -22,7 +22,7 @@ import java.util.ResourceBundle
  * @property jdbcTemplate used to interact with the database.
  */
 @Repository
-class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
+class DriverDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
@@ -45,7 +45,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
             id = rs.getLong("id"),
             name = rs.getString("name") ?: "",
             available = rs.getBoolean("available"),
-            activationDate = rs.getTimestamp("activation_date"),
+            activationDate = rs.getTimestamp("activation_date").toLocalDateTime(),
             car = car
         )
     }
@@ -55,7 +55,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      *
      * @return a list of all drivers.
      */
-    override fun findAll(): List<Driver> {
+    fun findAll(): List<Driver> {
         val sql = queries.getString("DriverDao.findAll")
         return jdbcTemplate.query(sql, rowMapper)
     }
@@ -69,7 +69,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
         return try {
             val sql = queries.getString("DriverDao.firstAvailable")
             jdbcTemplate.queryForObject(sql, rowMapper)
-        }catch (ex: EmptyResultDataAccessException) {
+        } catch (ex: EmptyResultDataAccessException) {
             null
         }
     }
@@ -80,7 +80,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      * @param id the ID of the driver to retrieve.
      * @return the driver if found, null otherwise.
      */
-    override fun findById(id: Long): Driver? {
+    fun findById(id: Long): Driver? {
         return try {
             val sql = queries.getString("DriverDao.findById")
             jdbcTemplate.queryForObject(sql, rowMapper, id)
@@ -95,7 +95,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      * @param entity the driver to save.
      * @return the saved driver.
      */
-    override fun save(entity: Driver): Driver = entity.id?.let {
+    fun save(entity: Driver): Driver = entity.id?.let {
         update(entity)
     } ?: run {
         insert(entity)
@@ -150,7 +150,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) : Dao<Driver> {
      *
      * @param id the ID of the driver to delete.
      */
-    override fun deleteById(id: Long) {
+    fun deleteById(id: Long) {
         findById(id) ?: throw EntityNotFoundException("Driver with id $id not found")
         val sql = queries.getString("DriverDao.deleteById")
         jdbcTemplate.update(sql, id)

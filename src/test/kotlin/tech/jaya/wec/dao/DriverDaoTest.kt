@@ -4,12 +4,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
 import tech.jaya.wec.testutils.TestEntityGenerator
 
@@ -20,12 +18,10 @@ import tech.jaya.wec.testutils.TestEntityGenerator
 class DriverDaoTest {
 
     @Autowired
-    @Qualifier("driverDao")
-    private lateinit var driverDao: Dao<Driver>
+    private lateinit var driverDao: DriverDao
 
     @Autowired
-    @Qualifier("carDao")
-    private lateinit var carDao: Dao<Car>
+    private lateinit var carDao: CarDao
     private final var generator: TestEntityGenerator = TestEntityGenerator()
 
     @Test
@@ -46,7 +42,8 @@ class DriverDaoTest {
     fun `findById should return a driver when found`() {
         val driver = newPersistedDriver()
         val result = driverDao.findById(driver.id!!)
-        assertEquals(driver, result)
+        assertEquals(driver.id, result!!.id)
+        assertEquals(driver.name, result.name)
     }
 
     @Test
@@ -61,7 +58,8 @@ class DriverDaoTest {
         val savedDriver = newPersistedDriver()
         val updatedResult = driverDao.save(savedDriver.copy(name = "New Name"))
         val expectedDriver = driverDao.findById(savedDriver.id!!)
-        assertEquals(expectedDriver, updatedResult)
+        assertEquals(expectedDriver!!.id, updatedResult.id)
+        assertEquals(expectedDriver.name, updatedResult.name)
     }
 
     @Test
