@@ -1,7 +1,6 @@
 package tech.jaya.wec.testutils
 
 import tech.jaya.wec.model.Address
-import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
 import tech.jaya.wec.model.Passenger
 import tech.jaya.wec.model.Ride
@@ -14,17 +13,17 @@ class TestEntityGenerator {
     private var factory: PodamFactory = PodamFactoryImpl()
 
     fun generateDriver(): Driver {
-        return factory.manufacturePojo(Driver::class.java).copy(id = null, activationDate = LocalDateTime.now())
-    }
+        return factory.manufacturePojo(Driver::class.java).let {
+            it.copy(id = null, activationDate = LocalDateTime.now())
+                .copy(car = it.car!!.copy(id = null))
+        }
 
-    fun generateCar(): Car {
-        return factory.manufacturePojo(Car::class.java).copy(id = null)
     }
 
     fun generateAddress(): Address {
         return factory.manufacturePojo(Address::class.java).copy(id = null)
     }
-    
+
     fun generateRide(): Ride {
         return factory.manufacturePojo(Ride::class.java).copy(id = null)
     }

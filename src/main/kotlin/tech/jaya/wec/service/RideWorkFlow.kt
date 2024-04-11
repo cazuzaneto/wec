@@ -17,17 +17,13 @@ class RideWorkFlow(
 
     fun start(ride: Ride): Ride {
         val passenger = passengerDao.findByEmail(ride.passenger.email)
-        val driver = driverDao.firstAvailable()
-
-        driverDao.setDriverToUnavailable(driver)
-
+        val driverAvailable = driverDao.firstDriverAvailable()
+        driverDao.setDriverToUnavailable(driverAvailable)
         return rideDao.save(
             ride.copy(
                 passenger = passenger!!,
-                driver = driver!!,
+                driver = driverAvailable!!,
             )
         )
     }
-
-
 }

@@ -21,9 +21,6 @@ import tech.jaya.wec.testutils.TestEntityGenerator
 class RideDaoTest {
 
     @Autowired
-    private lateinit var carDao: CarDao
-
-    @Autowired
     private lateinit var rideDao: RideDao
 
     @Autowired
@@ -75,8 +72,7 @@ class RideDaoTest {
     @Test
     fun `save should update ride when id is not null and change driver`() {
         val savedRide = newPersistedRide()
-        val car = carDao.save(generator.generateCar())
-        val driver = driverDao.save(generator.generateDriver().copy(car = car))
+        val driver = driverDao.saveDriver(generator.generateDriver())
         val updatedRide =
             rideDao.save(savedRide.copy(status = Status.CANCELLED, driver = driver))
         val expectedRide = rideDao.findById(savedRide.id!!)

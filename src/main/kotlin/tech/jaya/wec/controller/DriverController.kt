@@ -16,14 +16,14 @@ class DriverController(private val driverDao: DriverDao) {
 
     @GetMapping("/{id}")
     fun findById(@PathVariable id: Long): ResponseEntity<Driver> {
-        return driverDao.findById(id)?.let {
+        return driverDao.findDriverById(id)?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
     }
 
     @PostMapping
     fun save(@RequestBody driverRequest: Driver): ResponseEntity<Driver> {
-        return driverDao.save(driverRequest).let {
+        return driverDao.saveDriver(driverRequest).let {
             ResponseEntity.ok(it)
         }
     }

@@ -3,9 +3,11 @@ package tech.jaya.wec.dao
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import tech.jaya.wec.dao.exception.EntityNotFoundException
 import tech.jaya.wec.model.Car
 import tech.jaya.wec.model.Driver
@@ -25,7 +27,7 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
 
-    private val rowMapper = RowMapper { rs, _ ->
+    private val driverMap = RowMapper { rs, _ ->
         val carId = rs.getObject("car_id")
         val car = carId?.let {
             Car(
@@ -45,14 +47,87 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
         )
     }
 
+    private val carJdbcInsert = SimpleJdbcInsert(jdbcTemplate)
+        .withTableName("cars")
+        .usingGeneratedKeyColumns("id")
+
+    private val carMapper = RowMapper { rs, _ ->
+        Car(
+            id = rs.getLong("id"),
+            licensePlate = rs.getString("license_plate"),
+            model = rs.getString("model"),
+            color = rs.getString("color")
+        )
+    }
+
+    /**
+     * Retrieves a car by its ID.
+     *
+     * @param id the ID of the car to retrieve.
+     * @return the car if found, null otherwise.
+     */
+    fun findCarById(id: Long): Car? {
+        return try {
+            val sql = queries.getString("CarDao.findById")
+            jdbcTemplate.queryForObject(sql, carMapper, id)
+        } catch (e: EmptyResultDataAccessException) {
+            null
+        }
+    }
+
+    /**
+     * Saves a car to the database. If the car already exists, it is updated.
+     *
+     * @param entity the car to save.
+     * @return the saved car.
+     */
+    fun saveCar(entity: Car): Car {
+        return entity.id?.let { updateCar(entity) } ?: insertCar(entity)
+    }
+
+    /**
+     * Updates an existing car in the database.
+     *
+     * @param car the car to update.
+     * @return the updated car.
+     * @throws EntityNotFoundException if the car does not exist.
+     */
+    private fun updateCar(car: Car): Car {
+        val existingId = car.id!!
+        findCarById(existingId) ?: throw EntityNotFoundException("Car with id $existingId not found")
+        val sql = queries.getString("CarDao.save.update")
+        jdbcTemplate.update(
+            sql,
+            car.licensePlate, car.model, car.color, car.id
+        )
+        return car
+    }
+
+    /**
+     * Inserts a new car into the database.
+     *
+     * @param car the car to insert.
+     * @return the inserted car with its new ID.
+     */
+    private fun insertCar(car: Car): Car {
+        val parameters = HashMap<String, Any>(3)
+        parameters["license_plate"] = car.licensePlate
+        parameters["model"] = car.model
+        parameters["color"] = car.color
+
+        val newId = carJdbcInsert.executeAndReturnKey(parameters).toLong()
+
+        return car.copy(id = newId)
+    }
+
     /**
      * Retrieves all drivers from the database.
      *
      * @return a list of all drivers.
      */
-    fun findAll(): List<Driver> {
+    fun findAllDrivers(): List<Driver> {
         val sql = queries.getString("DriverDao.findAll")
-        return jdbcTemplate.query(sql, rowMapper)
+        return jdbcTemplate.query(sql, driverMap)
     }
 
     /**
@@ -60,10 +135,10 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @return a list of all drivers.
      */
-    fun firstAvailable(): Driver? {
+    fun firstDriverAvailable(): Driver? {
         return try {
             val sql = queries.getString("DriverDao.firstAvailable")
-            jdbcTemplate.queryForObject(sql, rowMapper)
+            jdbcTemplate.queryForObject(sql, driverMap)
         } catch (ex: EmptyResultDataAccessException) {
             null
         }
@@ -75,10 +150,10 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      * @param id the ID of the driver to retrieve.
      * @return the driver if found, null otherwise.
      */
-    fun findById(id: Long): Driver? {
+    fun findDriverById(id: Long): Driver? {
         return try {
             val sql = queries.getString("DriverDao.findById")
-            jdbcTemplate.queryForObject(sql, rowMapper, id)
+            jdbcTemplate.queryForObject(sql, driverMap, id)
         } catch (ex: EmptyResultDataAccessException) {
             null
         }
@@ -90,10 +165,11 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      * @param entity the driver to save.
      * @return the saved driver.
      */
-    fun save(entity: Driver): Driver = entity.id?.let {
-        update(entity)
+    @Transactional
+    fun saveDriver(entity: Driver): Driver = entity.id?.let {
+        updateDriver(entity)
     } ?: run {
-        insert(entity)
+        insertDriver(entity)
     }
 
     /**
@@ -103,9 +179,9 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      * @return the updated driver.
      * @throws EntityNotFoundException if the driver does not exist.
      */
-    private fun update(driver: Driver): Driver {
+    private fun updateDriver(driver: Driver): Driver {
         val existingId = driver.id!!
-        findById(existingId) ?: throw EntityNotFoundException("Driver with id $existingId not found")
+        findDriverById(existingId) ?: throw EntityNotFoundException("Driver with id $existingId not found")
         val sql = queries.getString("DriverDao.save.update")
         jdbcTemplate.update(
             sql,
@@ -123,15 +199,16 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      * @param driver the driver to insert.
      * @return the inserted driver with its new ID.
      */
-    private fun insert(driver: Driver): Driver {
+    private fun insertDriver(driver: Driver): Driver {
         val sql = queries.getString("DriverDao.save")
         val keyHolder: KeyHolder = GeneratedKeyHolder()
+        val car = driver.car?.let { saveCar(it) }
 
         jdbcTemplate.update({ connection: Connection ->
             val ps: PreparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
             ps.setString(1, driver.name)
             ps.setBoolean(2, driver.available)
-            ps.setLong(3, driver.car?.id!!)
+            car?.id!!.let { ps.setLong(3, it) }
             ps
         }, keyHolder)
 
@@ -145,8 +222,8 @@ class DriverDao(private val jdbcTemplate: JdbcTemplate) {
      *
      * @param id the ID of the driver to delete.
      */
-    fun deleteById(id: Long) {
-        findById(id) ?: throw EntityNotFoundException("Driver with id $id not found")
+    fun deleteDriverById(id: Long) {
+        findDriverById(id) ?: throw EntityNotFoundException("Driver with id $id not found")
         val sql = queries.getString("DriverDao.deleteById")
         jdbcTemplate.update(sql, id)
     }

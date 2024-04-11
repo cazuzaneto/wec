@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import tech.jaya.wec.dao.exception.EntityNotFoundException
 import tech.jaya.wec.model.Address
 import tech.jaya.wec.model.Car
@@ -176,6 +177,7 @@ class RideDao(private val jdbcTemplate: JdbcTemplate) {
      * @param entity the Ride entity to save.
      * @return the saved Ride entity.
      */
+    @Transactional
     fun save(entity: Ride): Ride = entity.id?.let {
         update(entity)
     } ?: run {
