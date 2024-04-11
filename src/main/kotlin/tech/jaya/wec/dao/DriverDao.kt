@@ -3,7 +3,6 @@ package tech.jaya.wec.dao
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.stereotype.Repository
@@ -25,10 +24,6 @@ import java.util.ResourceBundle
 class DriverDao(private val jdbcTemplate: JdbcTemplate) {
 
     private val queries = ResourceBundle.getBundle("sql-queries")
-
-    private val simpleJdbcInsert: SimpleJdbcInsert = SimpleJdbcInsert(jdbcTemplate)
-        .withTableName("drivers")
-        .usingGeneratedKeyColumns("id")
 
     private val rowMapper = RowMapper { rs, _ ->
         val carId = rs.getObject("car_id")
